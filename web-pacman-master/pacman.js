@@ -1,17 +1,28 @@
+
 // Copyright 2012 Shaun Williams
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License Version 3 as
-// published by the Free Software Foundation.
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License Version 3 as 
+//  published by the Free Software Foundation.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 
-(function () {
+// ==========================================================================
+// PAC-MAN
+// an accurate remake of the original arcade game
 
-//#line 1 "src/inherit.js"
+// Based on original works by Namco, GCC, and Midway.
+// Research by Jamey Pittman and Bart Grantham
+// Developed by Shaun Williams, Mason Borda
+
+// ==========================================================================
+
+(function(){
+
+//@line 1 "src/inherit.js"
 //  Apparently, the mutable, non-standard __proto__ property creates a lot of complexity for JS optimizers,
 //   so it may be phased out in future JS versions.  It's not even supported in Internet Explorer.
 //
@@ -51,8 +62,7 @@ var newChildObject = function(parentObj, newObj) {
 };
 
 var DEBUG = false;
-
-//#line 1 "src/sound.js"
+//@line 1 "src/sound.js"
 /* Sound handlers added by Dr James Freeman who was sad such a great reverse was a silent movie  */
 
 var audio = new preloadAudio();
@@ -137,8 +147,7 @@ function preloadAudio() {
         }
     }
 }
-
-//#line 1 "src/random.js"
+//@line 1 "src/random.js"
 
 var getRandomColor = function() {
     return '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6);
@@ -148,8 +157,7 @@ var getRandomInt = function(min,max) {
     return Math.floor(Math.random() * (max-min+1)) + min;
 };
 
-
-//#line 1 "src/game.js"
+//@line 1 "src/game.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Game
 
@@ -427,8 +435,7 @@ var saveHighScores = function() {
         localStorage.highScores = JSON.stringify(highScores);
     }
 };
-
-//#line 1 "src/direction.js"
+//@line 1 "src/direction.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Directions
 // (variables and utility functions for representing actor heading direction)
@@ -533,8 +540,7 @@ var isNextTileFloor = function(tile,dir) {
     return map.isFloorTile(tile.x+dir.x,tile.y+dir.y);
 };
 
-
-//#line 1 "src/Map.js"
+//@line 1 "src/Map.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Map
 // (an ascii map of tiles representing a level maze)
@@ -919,8 +925,7 @@ Map.prototype.onDotEat = function(x,y) {
     this.timeEaten[i] = vcr.getTime();
     renderer.erasePellet(x,y);
 };
-
-//#line 1 "src/colors.js"
+//@line 1 "src/colors.js"
 // source: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
 
 /**
@@ -1070,8 +1075,7 @@ function rgbString(rgb) {
     var b = Math.floor(rgb[2]);
     return 'rgb('+r+','+g+','+b+')';
 }
-
-//#line 1 "src/mapgen.js"
+//@line 1 "src/mapgen.js"
 var mapgen = (function(){
 
     var shuffle = function(list) {
@@ -2523,8 +2527,7 @@ var mapgen = (function(){
         return map;
     };
 })();
-
-//#line 1 "src/atlas.js"
+//@line 1 "src/atlas.js"
 
 var atlas = (function(){
 
@@ -3046,8 +3049,7 @@ var atlas = (function(){
         drawSnail: copySnail,
     };
 })();
-
-//#line 1 "src/renderers.js"
+//@line 1 "src/renderers.js"
 //////////////////////////////////////////////////////////////
 // Renderers
 
@@ -4152,8 +4154,7 @@ var initRenderer = function(){
     ];
     renderer = renderer_list[1];
 };
-
-//#line 1 "src/hud.js"
+//@line 1 "src/hud.js"
 
 var hud = (function(){
 
@@ -4192,8 +4193,7 @@ var hud = (function(){
     };
 
 })();
-
-//#line 1 "src/galagaStars.js"
+//@line 1 "src/galagaStars.js"
 
 var galagaStars = (function() {
 
@@ -4263,8 +4263,7 @@ var galagaStars = (function() {
     };
 
 })();
-
-//#line 1 "src/Button.js"
+//@line 1 "src/Button.js"
 var getPointerPos = function(evt) {
     var obj = canvas;
     var top = 0;
@@ -4526,8 +4525,7 @@ ToggleButton.prototype = newChildObject(Button.prototype, {
     },
 
 });
-
-//#line 1 "src/Menu.js"
+//@line 1 "src/Menu.js"
 var Menu = function(title,x,y,w,h,pad,font,fontcolor) {
     this.title = title;
     this.x = x;
@@ -4681,8 +4679,7 @@ Menu.prototype = {
         }
     },
 };
-
-//#line 1 "src/inGameMenu.js"
+//@line 1 "src/inGameMenu.js"
 ////////////////////////////////////////////////////
 // In-Game Menu
 var inGameMenu = (function() {
@@ -4861,8 +4858,7 @@ var inGameMenu = (function() {
     };
 })();
 
-
-//#line 1 "src/customSprites.js"
+//@line 1 "src/customSprites.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Custom sprites
 // Image-based replacements for the vector-drawn Pac-Man and ghost bodies.
@@ -5066,8 +5062,7 @@ var customSprites = (function(){
     };
 })();
 
-
-//#line 1 "src/sprites.js"
+//@line 1 "src/sprites.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Sprites
 // (sprites are created using canvas paths)
@@ -7638,8 +7633,7 @@ var drawExclamationPoint = function(ctx,x,y) {
 
     ctx.restore();
 };
-
-//#line 1 "src/Actor.js"
+//@line 1 "src/Actor.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // The actor class defines common data functions for the ghosts and pacman
 // It provides everything for updating position and direction.
@@ -7829,8 +7823,7 @@ Actor.prototype.update = function(j) {
     // update head direction
     this.steer();
 };
-
-//#line 1 "src/Ghost.js"
+//@line 1 "src/Ghost.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Ghost class
 
@@ -8302,8 +8295,7 @@ Ghost.prototype.setTarget = function() {
         this.targetting = 'pacman';
     }
 };
-
-//#line 1 "src/Player.js"
+//@line 1 "src/Player.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Player is the controllable character (Pac-Man)
 
@@ -8539,8 +8531,7 @@ Player.prototype.update = function(j) {
         }
     }
 };
-
-//#line 1 "src/actors.js"
+//@line 1 "src/actors.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // create all the actors
 
@@ -8577,8 +8568,7 @@ pacman.pathColor = "rgba(255,255,0,0.8)";
 // (suggests drawing/update order)
 var actors = [blinky, pinky, inky, clyde, pacman];
 var ghosts = [blinky, pinky, inky, clyde];
-
-//#line 1 "src/targets.js"
+//@line 1 "src/targets.js"
 /////////////////////////////////////////////////////////////////
 // Targetting
 // (a definition for each actor's targetting algorithm and a draw function to visualize it)
@@ -8838,8 +8828,7 @@ pacman.getPathDistLeft = function(fromPixel, dirEnum) {
 };
 
 })();
-
-//#line 1 "src/ghostCommander.js"
+//@line 1 "src/ghostCommander.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Ghost Commander
 // Determines when a ghost should be chasing a target
@@ -8945,8 +8934,7 @@ var ghostCommander = (function() {
         },
     };
 })();
-
-//#line 1 "src/ghostReleaser.js"
+//@line 1 "src/ghostReleaser.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Ghost Releaser
 
@@ -9100,8 +9088,7 @@ var ghostReleaser = (function(){
         },
     };
 })();
-
-//#line 1 "src/elroyTimer.js"
+//@line 1 "src/elroyTimer.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Elroy Timer
 
@@ -9169,8 +9156,7 @@ var elroyTimer = (function(){
         load: load,
     };
 })();
-
-//#line 1 "src/energizer.js"
+//@line 1 "src/energizer.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Energizer
 
@@ -9280,8 +9266,7 @@ var energizer = (function() {
         updatePointsTimer: function() { if (pointsFramesLeft > 0) pointsFramesLeft--; },
     };
 })();
-
-//#line 1 "src/fruit.js"
+//@line 1 "src/fruit.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Fruit
 
@@ -9632,8 +9617,7 @@ var setFruitFromGameMode = (function() {
         }
     };
 })();
-
-//#line 1 "src/powerups.js"
+//@line 1 "src/powerups.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Power-up orbs
 //
@@ -10272,8 +10256,7 @@ var powerups = (function() {
 })();
 
 powerups.reset();
-
-//#line 1 "src/legend.js"
+//@line 1 "src/legend.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Hash-map legend
 //
@@ -10403,14 +10386,18 @@ var legend = (function() {
         return cv;
     };
 
+
+    var GFG_LOGO = "data:image/png;base64,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";
+
     ////////////////////////////////////////////////////////////////////////////////
     // Panel construction
 
     var CSS = [
         "#legend{position:fixed;left:10px;top:50%;width:" + PANEL_WIDTH + "px;box-sizing:border-box;",
         "  transform-origin:0 50%;z-index:5;user-select:none;-webkit-user-select:none;",
-        "  font-family:ArcadeR,monospace;color:#fff;background:#000;padding:12px 12px 10px;",
-        "  image-rendering:pixelated;line-height:1;",
+        "  font-family:ArcadeR,monospace;color:#fff;line-height:1;}",
+        "#legend .lg-logo{display:block;width:100%;height:auto;margin:0 0 14px;image-rendering:auto;}",
+        "#legend .lg-box{background:#000;padding:12px 12px 10px;image-rendering:pixelated;",
         "  /* notched pixel corners + maze-style double line */",
         "  box-shadow:0 -3px 0 0 #00ff00,0 3px 0 0 #00ff00,-3px 0 0 0 #00ff00,3px 0 0 0 #00ff00,",
         "             inset 0 0 0 3px #000,inset 0 0 0 5px #00b300;}",
@@ -10450,7 +10437,6 @@ var legend = (function() {
         var k = el("div", "lg-key", '"' + keyText + '"');
         k.style.color = keyColor;
         t.appendChild(k);
-        t.appendChild(el("div", "lg-val", valueHtml));
         r.appendChild(t);
         return r;
     };
@@ -10471,6 +10457,15 @@ var legend = (function() {
         panel = el("div");
         panel.id = "legend";
 
+        // GeeksforGeeks logo above the box
+        var logo = el("img", "lg-logo");
+        logo.src = GFG_LOGO;
+        logo.alt = "GeeksforGeeks";
+        panel.appendChild(logo);
+
+        var box = el("div", "lg-box");
+        panel.appendChild(box);
+
         // title
         var title = el("div", "lg-title");
         title.appendChild(spriteIcon("pac1", 17, 2));
@@ -10478,38 +10473,38 @@ var legend = (function() {
         tt.appendChild(el("b", null, "HASH MAP"));
         tt.appendChild(el("i", null, "MAP&lt;KEY, EFFECT&gt;"));
         title.appendChild(tt);
-        panel.appendChild(title);
-        panel.appendChild(el("div", "lg-dots"));
+        box.appendChild(title);
+        box.appendChild(el("div", "lg-dots"));
 
         // buffs
-        panel.appendChild(section("BUFFS", "#00ff66"));
-        panel.appendChild(row("0", orbIcon("speed", c.speed, "#00805a"), "O(N)", c.speed,
+        box.appendChild(section("BUFFS", "#00ff66"));
+        box.appendChild(row("0", orbIcon("speed", c.speed, "#00805a"), "O(N)", c.speed,
             "SPEED UP <em>" + info.speedSec + "s</em>"));
-        panel.appendChild(row("1", orbIcon("shield", c.shield, "#1b4fa8"), "STACK SHIELD", c.shield,
+        box.appendChild(row("1", orbIcon("shield", c.shield, "#1b4fa8"), "STACK SHIELD", c.shield,
             "BLOCKS 1 HIT, <em>" + info.shieldSec + "s</em>"));
 
         // debuffs
-        panel.appendChild(section("DEBUFFS", "#ff3d3d"));
-        panel.appendChild(row("2", orbIcon("slow", c.slow, "#8f1240"), "O(N^2)", c.slow,
+        box.appendChild(section("DEBUFFS", "#ff3d3d"));
+        box.appendChild(row("2", orbIcon("slow", c.slow, "#8f1240"), "O(N^2)", c.slow,
             "SLOWED DOWN <em>" + info.slowSec + "s</em>"));
-        panel.appendChild(row("3", orbIcon("fork", c.fork, "#5a1f8f"), "FORK BOMB", c.fork,
+        box.appendChild(row("3", orbIcon("fork", c.fork, "#5a1f8f"), "FORK BOMB", c.fork,
             "+2 VIRUSES CHASE YOU <em>" + info.virusSec + "s</em>"));
 
         // mechanics
-        panel.appendChild(section("MECHANICS", "#00ffff"));
-        panel.appendChild(row("4", dotIcon(false), "PELLET", "#ffb8ae",
+        box.appendChild(section("MECHANICS", "#00ffff"));
+        box.appendChild(row("4", dotIcon(false), "PELLET", "#ffb8ae",
             "<em>+10</em> EAT THEM ALL TO CLEAR THE LEVEL"));
-        panel.appendChild(row("5", dotIcon(true), "ENERGIZER", "#ffffff",
+        box.appendChild(row("5", dotIcon(true), "ENERGIZER", "#ffffff",
             "BUGS TURN BLUE: EAT THEM FOR <em>PTS</em>"));
-        panel.appendChild(row("6", spriteIcon("blinky", 14, 2), "BUG", "#ff6b6b",
+        box.appendChild(row("6", spriteIcon("blinky", 14, 2), "BUG", "#ff6b6b",
             "TOUCH ONE AND YOU LOSE A LIFE"));
-        panel.appendChild(row("7", spriteIcon("virus", 14, 2), "VIRUS", "#7cfc00",
+        box.appendChild(row("7", spriteIcon("virus", 14, 2), "VIRUS", "#7cfc00",
             "CAN'T BE EATEN. RUN OR SHIELD"));
-        panel.appendChild(row("8", orbIcon("fork", "#888", "#444"), "ORB", "#ffffff",
+        box.appendChild(row("8", orbIcon("fork", "#888", "#444"), "ORB", "#ffffff",
             "HIDES ON A PELLET, VANISHES IN <em>" + info.orbSec + "s</em>"));
 
-        panel.appendChild(el("div", "lg-dots"));
-        panel.appendChild(el("div", "lg-foot",
+        box.appendChild(el("div", "lg-dots"));
+        box.appendChild(el("div", "lg-foot",
             "<span>ARROWS</span> MOVE &nbsp; <span>ESC</span> MENU<br><span>END</span> PAUSE"));
 
         document.body.appendChild(panel);
@@ -10555,8 +10550,7 @@ var legend = (function() {
         },
     };
 })();
-
-//#line 1 "src/executive.js"
+//@line 1 "src/executive.js"
 var executive = (function(){
 
     var framePeriod = 1000/60; // length of each frame at 60Hz (updates per second)
@@ -10699,8 +10693,7 @@ var executive = (function(){
         getFps: function() { return fps; },
     };
 })();
-
-//#line 1 "src/states.js"
+//@line 1 "src/states.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // States
 // (main loops for each state of the game)
@@ -10791,7 +10784,7 @@ var homeState = (function(){
         menu.disable();
     };
 
-    var menu = new Menu("CHOOSE A GAME",2*tileSize,0*tileSize,mapWidth-4*tileSize,3*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
+    var menu = new Menu("",2*tileSize,0*tileSize,mapWidth-4*tileSize,3*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
     var getIconAnimFrame = function(frame) {
         frame = Math.floor(frame/3)+1;
         frame %= 4;
@@ -10812,31 +10805,6 @@ var homeState = (function(){
         },
         function(ctx,x,y,frame) {
             atlas.drawPacmanSprite(ctx,x,y,DIR_RIGHT,getIconAnimFrame(frame));
-        });
-    menu.addTextIconButton(getGameName(GAME_MSPACMAN),
-        function() {
-            gameMode = GAME_MSPACMAN;
-            exitTo(preNewGameState);
-        },
-        function(ctx,x,y,frame) {
-            atlas.drawMsPacmanSprite(ctx,x,y,DIR_RIGHT,getIconAnimFrame(frame));
-        });
-    menu.addTextIconButton(getGameName(GAME_COOKIE),
-        function() {
-            gameMode = GAME_COOKIE;
-            exitTo(preNewGameState);
-        },
-        function(ctx,x,y,frame) {
-            drawCookiemanSprite(ctx,x,y,DIR_RIGHT,getIconAnimFrame(frame), true);
-        });
-
-    menu.addSpacer(0.5);
-    menu.addTextIconButton("LEARN",
-        function() {
-            exitTo(learnState);
-        },
-        function(ctx,x,y,frame) {
-            atlas.drawGhostSprite(ctx,x,y,Math.floor(frame/8)%2,DIR_RIGHT,false,false,false,blinky.color);
         });
 
     return {
@@ -12359,8 +12327,7 @@ var overState = (function() {
     };
 })();
 
-
-//#line 1 "src/input.js"
+//@line 1 "src/input.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Input
 // (Handles all key presses and touches)
@@ -12635,8 +12602,7 @@ var initSwipe = function() {
     document.ontouchmove = touchMove;
     document.ontouchcancel = touchCancel;
 };
-
-//#line 1 "src/cutscenes.js"
+//@line 1 "src/cutscenes.js"
 ////////////////////////////////////////////////
 // Cutscenes
 //
@@ -13775,8 +13741,7 @@ var triggerCutsceneAtEndLevel = function() {
     return false;
 };
 
-
-//#line 1 "src/maps.js"
+//@line 1 "src/maps.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Maps
 
@@ -14319,8 +14284,7 @@ mapMsPacman4.fruitPaths = {
                  { "path": "<vvv>>>>>>^^^^^^^^^>>>vv>>>>" }
              ]
          };
-
-//#line 1 "src/vcr.js"
+//@line 1 "src/vcr.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // VCR
 // This coordinates the recording, rewinding, and replaying of the game state.
@@ -14731,8 +14695,7 @@ var vcr = (function() {
         },
     };
 })();
-
-//#line 1 "src/main.js"
+//@line 1 "src/main.js"
 //////////////////////////////////////////////////////////////////////////////////////
 // Entry Point
 
@@ -14763,5 +14726,4 @@ window.addEventListener("load", function() {
     executive.init();
   });
 });
-
 })();

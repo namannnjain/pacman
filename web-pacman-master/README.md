@@ -132,20 +132,13 @@ Feel free to report any inaccuracies that may detract or simply annoy.  Any reve
 Navigating the Repository
 -------------------------
 - all javascript source files are located in the "src/" directory
-- "build.js" concatenates all the source files into "pacman.js" and stages the static site in "public/"
+- "build.sh" file concatenates all the source files into "pacman.js" in the top directory
 - "debug.htm" displays the game by using the "src/*.js" files
 - "index.htm" displays the game by using the "pacman.js" file only
 - the "fruit" directory contains notes and diagrams on Ms. Pac-Man fruit paths
 - the "mapgen" directory contains notes, diagrams, and experiments on procedural Pac-Man maze generation
 - the "sprites" directory contains references sprite sheets and an atlas viewer "atlas.htm" for viewing the scalable game sprites.
 - the "font" directory contains font resources used in the game.
-
-### Deploying to Vercel
-
-Import this project into Vercel with the repository root set to this directory.
-The configured build command (`npm run build`) compiles the game and stages the
-static site in `public/`; Vercel serves that directory without a framework
-runtime.
 
 Credits
 -------
