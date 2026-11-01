@@ -7,10 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "bash build.sh; next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "node build.js"
   },
   "repository": {
     "type": "git",
@@ -25,11 +22,7 @@
     "url": "https://github.com/masonicGIT/pacman/issues"
   },
   "homepage": "https://github.com/masonicGIT/pacman#readme",
-  "dependencies": {
-    "node": "^20.1.0"
-  },
-  "devDependencies": {
-    "eslint": "8.40.0",
-    "eslint-config-next": "13.4.2"
+  "engines": {
+    "node": ">=20"
   }
 }
