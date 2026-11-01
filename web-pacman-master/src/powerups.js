@@ -40,8 +40,8 @@ var powerups = (function() {
 
     var ORB_LIFETIME     = 12*FPS;   // an uncollected orb disappears after this long
     var ORB_BLINK_TIME   = 2.5*FPS;  // orb blinks during its last moments
-    var SPAWN_MIN_DELAY  = 7*FPS;    // random delay between spawns
-    var SPAWN_MAX_DELAY  = 15*FPS;
+    var SPAWN_MIN_DELAY  = 5*FPS;    // random delay between spawns
+    var SPAWN_MAX_DELAY  = 11*FPS;
     var MAX_ORBS         = 2;        // max orbs on the map at once
     var MIN_SPAWN_DIST   = 8;        // min distance (in tiles) from Pac-Man when spawning
 
@@ -71,8 +71,10 @@ var powerups = (function() {
     var speedFrames;    // frames of speed effect left
     var speedTotal;     // total length of the current speed effect (for the HUD ring)
     var tick;           // free-running frame counter for animations
-    var viruses = [];   // the two FORK BOMB monsters (Ghost objects, created on first use)
-    var virusFrames;    // frames of FORK BOMB left (0 = no viruses on the map)
+    var viruses = [];   // pool of extra monsters (Ghost objects, created on first use)
+    var virusCount = 0; // how many of the pool are in play (2 for FORK BOMB, 10 for the ghost swarm)
+    var virusStyle = "virus"; // "virus" = 🦠 sprites (FORK BOMB), "bugs" = ghost-bug sprites (helpline swarm)
+    var virusFrames;    // frames of the extra monsters left (0 = none on the map)
 
     var popupText, popupColor, popupX, popupY, popupFrames;
 
@@ -85,8 +87,28 @@ var powerups = (function() {
         return Math.floor(Math.random() * (max-min+1)) + min;
     };
 
+    // Test mode: open index.html?forkbomb to make every orb a Fork Bomb, spawning every ~3s.
+    var FORCE_FORK = (typeof window != "undefined") && /[?&]forkbomb/.test(window.location.search);
+
     var nextSpawnDelay = function() {
+        if (FORCE_FORK) return 3*FPS;
         return randInt(SPAWN_MIN_DELAY, SPAWN_MAX_DELAY);
+    };
+
+    // Orb types come out of a shuffled bag, so every 4 orbs contain each type exactly once
+    // (pure randomness could go a minute or more without a Fork Bomb).
+    var bag = [];
+    var nextOrbType = function() {
+        if (FORCE_FORK) return ORB_FORK_BOMB;
+        if (bag.length == 0) {
+            bag = [ORB_SHIELD, ORB_SPEED_UP, ORB_SLOW_DOWN, ORB_FORK_BOMB];
+            var i, j, t;
+            for (i=bag.length-1; i>0; i--) {
+                j = randInt(0, i);
+                t = bag[i]; bag[i] = bag[j]; bag[j] = t;
+            }
+        }
+        return bag.pop();
     };
 
     var showPopup = function(text, color) {
@@ -131,7 +153,7 @@ var powerups = (function() {
         orbs.push({
             x: c.x,
             y: c.y,
-            type: randInt(0,3),
+            type: nextOrbType(),
             framesLeft: ORB_LIFETIME,
         });
     };
@@ -144,21 +166,23 @@ var powerups = (function() {
     // never scared and cannot be eaten.  Virus 0 chases Pac-Man directly (like Blinky),
     // virus 1 ambushes four tiles ahead (like Pinky).
 
-    var makeViruses = function() {
+    var BUG_COLORS = ["#ff0000", "#ffb8ff", "#00ffff", "#ffb851"]; // same colors as the four ghosts
+
+    // grow the pool to at least n monsters
+    var ensureViruses = function(n) {
         var i, v;
-        viruses = [];
-        for (i=0; i<2; i++) {
+        for (i=viruses.length; i<n; i++) {
             v = new Ghost();
             v.name = "virus" + i;
             v.color = "#7cfc00";
             v.isVisible = true;
             v.index = i;
             v.savedAge = {};
-            if (i == 0) {
+            if (i % 2 == 0) { // even ones chase Pac-Man directly (like Blinky)
                 v.getTargetTile = function() { return { x: pacman.tile.x, y: pacman.tile.y }; };
                 v.getTargetPixel = function() { return { x: pacman.pixel.x, y: pacman.pixel.y }; };
             }
-            else {
+            else {            // odd ones ambush four tiles ahead (like Pinky)
                 v.getTargetTile = pinky.getTargetTile;
                 v.getTargetPixel = pinky.getTargetPixel;
             }
@@ -166,17 +190,20 @@ var powerups = (function() {
         }
     };
 
-    var startViruses = function() {
-        if (viruses.length == 0)
-            makeViruses();
+    // put 'count' extra monsters on the map for 'frames' frames; they pop out of the ghost
+    // house door one after another
+    var startViruses = function(count, frames, style) {
+        ensureViruses(count);
+        virusCount = count;
+        virusStyle = style;
+        var gap = (style == "bugs") ? 0.45*FPS : VIRUS_SPAWN_GAP;
         var i, v, corner;
-        for (i=0; i<viruses.length; i++) {
+        for (i=0; i<count; i++) {
             v = viruses[i];
-            corner = (i == 0) ? pinky.cornerTile : clyde.cornerTile;
+            corner = (style == "bugs") ? ghosts[i%4].cornerTile : ghosts[(2*i+1)%4].cornerTile;
             v.cornerTile = { x: corner.x, y: corner.y };
-            // they pop out of the ghost house door; one heads left, the other right
             v.startPixel = { x: blinky.startPixel.x, y: blinky.startPixel.y };
-            v.startDirEnum = (i == 0) ? DIR_LEFT : DIR_RIGHT;
+            v.startDirEnum = (i % 2 == 0) ? DIR_LEFT : DIR_RIGHT;
             v.startMode = v.arriveHomeMode = GHOST_OUTSIDE;
             v.mode = GHOST_OUTSIDE;
             v.scared = false;
@@ -192,9 +219,9 @@ var powerups = (function() {
             v.savedAge = {};
             Actor.prototype.reset.apply(v);
             v.faceDirEnum = v.dirEnum;
-            v.age = -i*VIRUS_SPAWN_GAP; // negative age = not on the map yet
+            v.age = -i*gap; // negative age = not on the map yet
         }
-        virusFrames = VIRUS_DURATION;
+        virusFrames = frames;
     };
 
     var virusOnMap = function(v) { return v.age >= 0; };
@@ -217,9 +244,9 @@ var powerups = (function() {
         }
         else if (orb.type == ORB_FORK_BOMB) {
             if (virusFrames > 0)
-                virusFrames = VIRUS_DURATION;  // already infected: just restart the clock
+                virusFrames = Math.max(virusFrames, VIRUS_DURATION); // already infected: restart the clock
             else
-                startViruses();
+                startViruses(2, VIRUS_DURATION, "virus");
         }
 
         showPopup(info.popup, info.color);
@@ -245,6 +272,7 @@ var powerups = (function() {
             tick = 0;
             popupFrames = 0;
             virusFrames = 0;
+            virusCount = 0;
         },
 
         // advance one frame (called from playState.update)
@@ -257,7 +285,7 @@ var powerups = (function() {
             if (popupFrames > 0)  popupFrames--;
             if (virusFrames > 0) {
                 virusFrames--;
-                for (i=0; i<viruses.length; i++) {
+                for (i=0; i<virusCount; i++) {
                     viruses[i].age++;
                     if (virusOnMap(viruses[i]))
                         viruses[i].frames++;
@@ -321,11 +349,16 @@ var powerups = (function() {
             return undefined;
         },
 
+        // Helpline easter egg: put 'count' ghost-bugs on the map for 'seconds' seconds
+        spawnSwarm: function(count, seconds) {
+            startViruses(count, seconds*FPS, "bugs");
+        },
+
         // advance the viruses by one movement step (called from playState.update, like actors)
         updateViruses: function(j) {
             if (virusFrames <= 0) return;
             var i;
-            for (i=0; i<viruses.length; i++)
+            for (i=0; i<virusCount; i++)
                 if (virusOnMap(viruses[i]))
                     viruses[i].update(j);
         },
@@ -334,7 +367,7 @@ var powerups = (function() {
         virusTouchesPacman: function() {
             if (virusFrames <= 0) return false;
             var i, v;
-            for (i=0; i<viruses.length; i++) {
+            for (i=0; i<virusCount; i++) {
                 v = viruses[i];
                 if (virusOnMap(v) && virusArmed(v) && v.tile.x == pacman.tile.x && v.tile.y == pacman.tile.y)
                     return true;
@@ -387,9 +420,11 @@ var powerups = (function() {
                 popupY: popupY,
                 popupFrames: popupFrames,
                 virusFrames: virusFrames,
+                virusCount: virusCount,
+                virusStyle: virusStyle,
             };
             if (virusFrames > 0) {
-                for (i=0; i<viruses.length; i++) {
+                for (i=0; i<virusCount; i++) {
                     viruses[i].save(t);
                     viruses[i].savedAge[t] = viruses[i].age;
                 }
@@ -418,8 +453,10 @@ var powerups = (function() {
             popupY = s.popupY;
             popupFrames = s.popupFrames;
             virusFrames = s.virusFrames;
+            virusCount = s.virusCount;
+            virusStyle = s.virusStyle;
             if (virusFrames > 0) {
-                for (i=0; i<viruses.length; i++) {
+                for (i=0; i<virusCount; i++) {
                     viruses[i].load(t);
                     viruses[i].age = viruses[i].savedAge[t];
                 }
@@ -528,7 +565,7 @@ var powerups = (function() {
         drawViruses: function(ctx) {
             if (virusFrames <= 0) return;
             var i, v, alpha, frame;
-            for (i=0; i<viruses.length; i++) {
+            for (i=0; i<virusCount; i++) {
                 v = viruses[i];
                 if (!virusOnMap(v)) continue;
                 alpha = 1;
@@ -537,7 +574,19 @@ var powerups = (function() {
                 else if (virusFrames < VIRUS_FADE_TIME) // about to vanish: flicker
                     alpha = (Math.floor(virusFrames/5) % 2 == 0) ? 0.25 : 1;
                 frame = Math.floor(v.frames/8) % 2;
-                customSprites.drawVirus(ctx, v.pixel.x, v.pixel.y, frame, alpha);
+                if (virusStyle == "bugs") {
+                    ctx.save();
+                    ctx.globalAlpha = ctx.globalAlpha * alpha;
+                    ctx.translate(v.pixel.x-7, v.pixel.y-7);
+                    if (!customSprites.drawGhostBody(ctx, 7, 7, frame, v.faceDirEnum, false, false, BUG_COLORS[i%4])) {
+                        ctx.restore();
+                        customSprites.drawVirus(ctx, v.pixel.x, v.pixel.y, frame, alpha);
+                        continue;
+                    }
+                    ctx.restore();
+                }
+                else
+                    customSprites.drawVirus(ctx, v.pixel.x, v.pixel.y, frame, alpha);
             }
         },
 
@@ -599,7 +648,9 @@ var powerups = (function() {
             if (speedFrames > 0)
                 chips.push({ t: INFO[speedType].hud + " " + Math.ceil(speedFrames/FPS), c: INFO[speedType].color });
             if (virusFrames > 0)
-                chips.push({ t: INFO[ORB_FORK_BOMB].hud + " " + Math.ceil(virusFrames/FPS), c: INFO[ORB_FORK_BOMB].color });
+                chips.push({
+                    t: (virusStyle == "bugs" ? virusCount + " GHOSTS" : INFO[ORB_FORK_BOMB].hud) + " " + Math.ceil(virusFrames/FPS),
+                    c: (virusStyle == "bugs" ? "#ff3d3d" : INFO[ORB_FORK_BOMB].color) });
             if (chips.length > 0) {
                 var gap = 8, total = -gap, i;
                 for (i=0; i<chips.length; i++) {

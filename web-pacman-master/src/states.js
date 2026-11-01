@@ -84,11 +84,13 @@ var fadeNextState = function (prevState, nextState, frameDuration, continueUpdat
 var homeState = (function(){
 
     var exitTo = function(s) {
+        optimus.hide();
+        relayout();
         switchState(s);
         menu.disable();
     };
 
-    var menu = new Menu("",2*tileSize,0*tileSize,mapWidth-4*tileSize,3*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
+    var menu = new Menu("CHOOSE A GAME",2*tileSize,0*tileSize,mapWidth-4*tileSize,3*tileSize,tileSize,tileSize+"px ArcadeR", "#EEE");
     var getIconAnimFrame = function(frame) {
         frame = Math.floor(frame/3)+1;
         frame %= 4;
@@ -111,9 +113,28 @@ var homeState = (function(){
             atlas.drawPacmanSprite(ctx,x,y,DIR_RIGHT,getIconAnimFrame(frame));
         });
 
+    menu.addSpacer(0.5);
+    menu.addTextIconButton("LEADERBOARD",
+        function() {
+            exitTo(leaderboardState);
+        },
+        function(ctx,x,y,frame) { // little pixel trophy
+            var T = ["XXXXXXX","XXXXXXX",".XXXXX.","..XXX..","...X...","..XXX.."];
+            var r, c;
+            ctx.fillStyle = "#ffd24a";
+            for (r=0; r<T.length; r++)
+                for (c=0; c<T[r].length; c++)
+                    if (T[r].charAt(c) == "X")
+                        ctx.fillRect(Math.round(x-7+c*2), Math.round(y-6+r*2), 2, 2);
+        });
+
     return {
         init: function() {
+            leaderboardPanel.hide();
             menu.enable();
+            optimus.show();
+            relayout();
+            helpline.release(); // turn the secret-gesture camera off
             audio.coffeeBreakMusic.startLoop();
         },
         draw: function() {
@@ -433,14 +454,14 @@ var preNewGameState = (function() {
             practiceMode = false;
             turboMode = false;
             newGameState.setStartLevel(1);
-            exitTo(newGameState, 60);
+            exitTo(nicknameState); // asks for a nickname, then starts the game
         });
     menu.addTextButton("PLAY TURBO",
         function() { 
             practiceMode = false;
             turboMode = true;
             newGameState.setStartLevel(1);
-            exitTo(newGameState, 60);
+            exitTo(nicknameState); // asks for a nickname, then starts the game
         });
     menu.addTextButton("PRACTICE",
         function() { 
@@ -466,6 +487,7 @@ var preNewGameState = (function() {
 
     return {
         init: function() {
+            leaderboardPanel.hide();
             audio.startMusic.play();
             menu.enable();
             gameTitleState.init();
@@ -1140,7 +1162,10 @@ var newGameState = (function() {
             clearCheats();
             frames = 0;
             level = startLevel-1;
-            extraLives = practiceMode ? Infinity : 3;
+            extraLives = practiceMode ? Infinity : helpline.getStartLives();
+            helpline.newGame(); // one helpline per game
+            leaderboardPanel.show(); // live top 10 next to the maze
+            helpline.prepare(); // warm up the secret-gesture camera (normal games only)
             setScore(0);
             setFruitFromGameMode();
             readyNewState.init();
@@ -1262,6 +1287,7 @@ var readyRestartState = newChildObject(readyState, {
 
 var playState = {
     init: function() { 
+        helpline.playStarted(); // apply a pending helpline reward (power mode / ghost swarm)
         if (practiceMode) {
             vcr.reset();
         }
@@ -1612,18 +1638,68 @@ var finishState = (function(){
 
 var overState = (function() {
     var frames;
+    var windowOpen;   // is the secret gesture window running?
+    var chosen;       // gesture accepted, its effect is playing
+    var effectFrames;
+
+    // final exit from a finished game: save the score, back to the home screen
+    var goHome = function() {
+        leaderboard.submitGame();
+        switchState(homeState,60);
+    };
+
+    // leave the game over screen after a gesture's effect has played
+    var finish = function() {
+        if (helpline.apply(chosen) == "restart")
+            switchState(readyRestartState);
+        else
+            goHome();
+    };
+
     return {
         init: function() {
             frames = 0;
+            chosen = undefined;
+            effectFrames = 0;
+            helpline.cancelPending();
+            windowOpen = helpline.open();
         },
         draw: function() {
             renderer.blitMap();
             renderer.drawScore();
             renderer.drawMessage("GAME  OVER", "#F00", 9, 20);
+            if (windowOpen && !chosen)
+                renderer.renderFunc(function(ctx) { helpline.drawHint(ctx, frames); });
+            if (chosen)
+                renderer.renderFunc(helpline.drawEffect);
         },
         update: function() {
-            if (frames == 120) {
-                switchState(homeState,60);
+            if (!windowOpen) {
+                if (frames == 120) {
+                    goHome();
+                }
+                else
+                    frames++;
+                return;
+            }
+
+            // secret gesture window
+            if (chosen) {
+                helpline.updateEffect();
+                if (++effectFrames >= helpline.EFFECT_FRAMES)
+                    finish();
+                return;
+            }
+            var g = helpline.take();
+            if (g) {
+                chosen = g;
+                helpline.close();
+                helpline.startEffect(g);
+                return;
+            }
+            if (frames >= helpline.WINDOW_FRAMES) {
+                helpline.close();
+                goHome();
             }
             else
                 frames++;

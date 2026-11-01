@@ -1,0 +1,46 @@
+:root { --bg:#07070d; --panel:#10101c; --line:#242444; --cyan:#00f0ff; --pink:#ff2bd6; --yellow:#ffe600; --text:#d8e6ff; --dim:#6c7aa6; }
+* { box-sizing: border-box; }
+body { margin:0; background:radial-gradient(circle at 20% 0%, #14143a, var(--bg) 60%); color:var(--text); font-family:"Segoe UI", system-ui, sans-serif; min-height:100vh; }
+header { display:flex; justify-content:space-between; align-items:center; padding:14px 22px; border-bottom:1px solid var(--line); }
+h1 { margin:0; font-size:1.2rem; letter-spacing:.25em; font-weight:700; }
+h1 span { color:var(--cyan); text-shadow:0 0 12px var(--cyan); }
+.status { display:flex; align-items:center; gap:8px; color:var(--dim); }
+.dot { width:12px; height:12px; border-radius:50%; background:#555; }
+.dot.ok { background:#2cff7a; box-shadow:0 0 10px #2cff7a; }
+.dot.busy { background:var(--yellow); box-shadow:0 0 10px var(--yellow); }
+.dot.err { background:#ff3b5c; box-shadow:0 0 10px #ff3b5c; }
+main { display:grid; grid-template-columns: minmax(320px, 1.4fr) minmax(300px, 1fr); gap:20px; padding:20px; max-width:1200px; margin:auto; }
+@media (max-width: 800px) { main { grid-template-columns:1fr; } }
+.viewport { position:relative; aspect-ratio:4/3; background:#000; border:1px solid var(--cyan); box-shadow:0 0 24px rgba(0,240,255,.25); border-radius:8px; overflow:hidden; }
+/* Mirror video AND overlay together so the preview feels like a mirror. Classification is unaffected. */
+video, canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+.hint { position:absolute; inset:0; display:grid; place-items:center; color:var(--dim); letter-spacing:.2em; pointer-events:none; }
+.hint.hide { display:none; }
+.controls { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+button { background:transparent; color:var(--cyan); border:1px solid var(--cyan); padding:10px 18px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; border-radius:4px; cursor:pointer; }
+button:hover:not(:disabled) { background:var(--cyan); color:#000; box-shadow:0 0 14px var(--cyan); }
+button:disabled { opacity:.35; cursor:not-allowed; }
+#btnStop { color:var(--pink); border-color:var(--pink); }
+#btnStop:hover:not(:disabled) { background:var(--pink); color:#000; box-shadow:0 0 14px var(--pink); }
+.error { color:#ff6b86; border:1px solid #ff3b5c; padding:10px; border-radius:6px; }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; }
+label { color:var(--dim); font-size:.72rem; letter-spacing:.15em; text-transform:uppercase; display:flex; justify-content:space-between; }
+label em { font-style:normal; color:var(--text); }
+.readout { display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; }
+.readout .big, .readout > label, .readout .bar { grid-column:1 / -1; }
+.readout b { font-size:1.4rem; }
+.big b { font-size:2rem; color:var(--yellow); text-shadow:0 0 12px rgba(255,230,0,.6); }
+.bar { height:10px; background:#05050a; border:1px solid var(--line); border-radius:6px; overflow:hidden; margin-bottom:6px; }
+.bar > div { height:100%; width:0; background:linear-gradient(90deg, var(--cyan), #6cf); transition:width .08s linear; }
+.bar > .alt { background:linear-gradient(90deg, var(--pink), var(--yellow)); }
+.cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px; text-align:center; transition:.15s; }
+.card .emoji { font-size:2rem; }
+.card .name { font-size:.75rem; letter-spacing:.12em; color:var(--dim); margin:4px 0 8px; }
+.card .bar { margin:0; height:6px; }
+.card.active { border-color:var(--cyan); box-shadow:0 0 14px rgba(0,240,255,.4); }
+.card.fired { border-color:var(--yellow); background:#2a2600; box-shadow:0 0 22px var(--yellow); }
+#log { list-style:none; margin:8px 0 0; padding:0; max-height:150px; overflow:auto; font-family:ui-monospace, Consolas, monospace; font-size:.8rem; color:var(--dim); }
+#log li b { color:var(--yellow); }
+
+.card .why { font:.7rem ui-monospace, Consolas, monospace; color:var(--pink); min-height:1em; margin-top:6px; }

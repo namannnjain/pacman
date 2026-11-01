@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secret Gesture Detector // Debug Console</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>SECRET<span>GESTURE</span> DETECTOR</h1>
+    <div class="status"><i id="dot" class="dot"></i><span id="statusText">Idle</span></div>
+  </header>
+
+  <main>
+    <section class="stage">
+      <div class="viewport">
+        <video id="video" playsinline muted></video>
+        <canvas id="overlay"></canvas>
+        <div id="hint" class="hint">Press START CAMERA</div>
+      </div>
+      <div class="controls">
+        <button id="btnStart">Start Camera</button>
+        <button id="btnStop" disabled>Stop Camera</button>
+        <button id="btnReset" disabled>Reset</button>
+      </div>
+      <p id="error" class="error" hidden></p>
+    </section>
+
+    <aside>
+      <div class="panel readout">
+        <div><label>Hands</label><b id="hands">0</b></div>
+        <div><label>FPS</label><b id="fps">0</b></div>
+        <div class="big"><label>Gesture</label><b id="gesture">—</b></div>
+        <label>Confidence <em id="confVal">0%</em></label>
+        <div class="bar"><div id="confBar"></div></div>
+        <label>Stability (hold) <em id="stabVal">0%</em></label>
+        <div class="bar"><div id="stabBar" class="alt"></div></div>
+      </div>
+
+      <div class="cards" id="cards"></div>
+
+      <div class="panel">
+        <label>Event log</label>
+        <ul id="log"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -38,6 +38,9 @@ var getLegendWidth = function() {
     return (typeof legend != "undefined") ? legend.getReservedWidth() : 0;
 };
 
+// re-run the page layout (assigned by initRenderer); used when the home menu is entered or left
+var relayout = function() {};
+
 var getDevicePixelRatio = function() {
     // Only consider the device pixel ratio for devices that are <= 320 pixels in width.
     // This is necessary for the iPhone4's retina display; otherwise the game would be blurry.
@@ -126,8 +129,21 @@ var initRenderer = function(){
         */
         // center the maze in the space to the right of the legend panel
         var lw = getLegendWidth();
-        document.body.style.marginLeft = (lw + (window.innerWidth - lw - w)/2) + "px";
+        var ml = lw + (window.innerWidth - lw - w)/2;
+        // on the home menu the menu is centered in the whole window (with the legend on its left
+        // and Optimus Prime on its right), as long as that leaves the legend clear
+        if (typeof optimus != "undefined" && optimus.isWanted()) {
+            var centered = (window.innerWidth - w)/2;
+            if (centered >= lw) {
+                ml = centered;
+            }
+        }
+        document.body.style.marginLeft = ml + "px";
+        if (typeof optimus != "undefined") {
+            optimus.layout();
+        }
     };
+    relayout = center;
 
     // create foreground and background canvases
     canvas = document.getElementById('canvas');

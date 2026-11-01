@@ -68,6 +68,13 @@ function preloadAudio() {
     this.eating            = new audioTrack('sounds/eating.mp3', 0.5);
     this.startMusic        = new audioTrack('sounds/start-music.mp3');
 
+    // helpline easter egg
+    this.helpHint          = new audioTrack('sounds/help-hint.mp3');   // gesture window opens
+    this.helpHeart         = new audioTrack('sounds/help-heart.mp3');
+    this.helpPower         = new audioTrack('sounds/help-power.mp3');
+    this.helpBonus         = new audioTrack('sounds/help-bonus.mp3');
+    this.helpGhosts        = new audioTrack('sounds/help-ghosts.mp3');
+
     this.ghostReset = function(noResetTime) {
         for (var s in this) {
             if (s == 'silence' || s == 'ghostReset' ) return;

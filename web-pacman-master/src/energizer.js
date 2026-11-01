@@ -9,12 +9,17 @@ var energizer = (function() {
     // how many seconds to display points when ghost is eaten
     var pointsDuration = 1;
 
+    // minimum duration (frames) forced by activate(minFrames); used by the helpline's power mode
+    // so it still lasts a while on late levels where the normal energizer is short or off
+    var minDuration = 0;
+
     // how long to stay energized based on current level
     var getDuration = (function(){
         var seconds = [6,5,4,3,2,5,2,2,1,5,2,1,1,3,1,1,0,1];
         return function() {
             var i = level;
-            return (i > 18) ? 0 : 60*seconds[i-1];
+            var normal = (i > 18) ? 0 : 60*seconds[i-1];
+            return Math.max(normal, minDuration);
         };
     })();
 
@@ -60,6 +65,7 @@ var energizer = (function() {
         save: save,
         load: load,
         reset: function() {
+            minDuration = 0;
             audio.ghostTurnToBlue.stopLoop();
             count = 0;
             active = false;
@@ -77,7 +83,8 @@ var energizer = (function() {
                     count++;
             }
         },
-        activate: function() { 
+        activate: function(minFrames) {
+            minDuration = minFrames || 0;
             audio.ghostNormalMove.stopLoop();
             audio.ghostTurnToBlue.startLoop();
             active = true;

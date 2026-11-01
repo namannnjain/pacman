@@ -52,6 +52,7 @@ var inGameMenu = (function() {
     });
     menu.addTextButton("QUIT", function() {
         showConfirm("QUIT GAME?", function() {
+            leaderboard.submitGame();
             switchState(homeState, 60);
         });
     });

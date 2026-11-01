@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Gesture API test (post-death flow)</title>
+<style>body{background:#07070d;color:#d8e6ff;font-family:system-ui;padding:20px;max-width:560px;margin:auto}
+button{margin:4px;padding:10px 14px}#log{font-family:monospace;white-space:pre-wrap;background:#10101c;padding:10px;min-height:160px}</style></head>
+<body>
+<h2>Standalone integration test</h2>
+<p>Imitates how the Pac-Man game will use the detector: start the camera once, then open a 10-second window after each "death".</p>
+<button id="a">1. start()</button>
+<button id="b" disabled>2. Simulate death (10 s window)</button>
+<button id="c" disabled>3. stop()</button>
+<h3 id="t">Window closed</h3>
+<div id="log"></div>
+<script type="module">
+import { SecretGestureDetector } from './js/gestureController.js';
+const $ = id => document.getElementById(id), out = $('log');
+const log = m => out.textContent = new Date().toLocaleTimeString() + ' ' + m + '\n' + out.textContent;
+
+// ---- This block is what the Pac-Man team copies ----
+const detector = new SecretGestureDetector({
+  onGestureDetected: (g) => {
+    log('GESTURE ' + g.id + ' (' + Math.round(g.confidence * 100) + '%)');
+    switch (g.id) {
+      case 'HEART': log('-> game: revive with 2 lives'); break;
+      case 'OK_HAND': log('-> game: revive with 1 life + power mode'); break;
+      case 'THUMBS_UP': log('-> game: leaderboard bonus'); break;
+      case 'MIDDLE_FINGER': log('-> game: revive with 1 life + 10 ghosts'); break;
+    }
+  },
+  onStatusChange: (s) => log('status: ' + s.state + ' - ' + s.message),
+});
+// ----------------------------------------------------
+let timer;
+$('a').onclick = async () => { try { await detector.start(); $('b').disabled = $('c').disabled = false; } catch (e) { log('start failed: ' + e.message); } };
+$('b').onclick = () => {                      // the GAME owns the countdown, not the detector
+  clearInterval(timer); let left = 10; detector.enableDetection();
+  timer = setInterval(() => {
+    $('t').textContent = 'Window open: ' + left-- + ' s';
+    if (left < 0) { clearInterval(timer); detector.disableDetection(); $('t').textContent = 'Window closed'; log('window expired -> no more events'); }
+  }, 1000);
+};
+$('c').onclick = () => { clearInterval(timer); detector.stop(); $('b').disabled = $('c').disabled = true; };
+</script></body></html>
