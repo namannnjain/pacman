@@ -124,6 +124,10 @@ cp -rf sounds ./public/
 
 cp -rf icon ./public/
 
+# copy gesture detector
+
+cp -rf gesture ./public/
+
 # create the pages folder
 
 rm -rf pages
